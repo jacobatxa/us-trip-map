@@ -10,156 +10,158 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%;background:#0d0d1a;font-family:'Inter','SF Pro','Segoe UI',sans-serif;color:#e0e0e0}
 .layout{display:flex;height:100vh}
-#sidebar{width:380px;min-width:380px;overflow-y:auto;padding:20px;border-right:1px solid rgba(255,255,255,.08);background:#111122}
+#sidebar{width:360px;min-width:360px;overflow-y:auto;padding:20px;border-right:1px solid rgba(255,255,255,.08);background:#0f0f1e}
 #map{flex:1}
-#sidebar h1{font-size:20px;font-weight:700;color:#e0e0e0;margin-bottom:4px}
-#sidebar .sub{color:#818cf8;font-size:13px;margin-bottom:16px}
-.day-group{margin-bottom:10px}
-.day-header{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;transition:all .2s}
-.day-header:hover{background:rgba(255,255,255,.05)}
-.day-header .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.day-header .date-label{font-weight:600;font-size:14px;color:#e0e0e0}
-.day-header .day-title{font-size:13px;color:#a0a0b0;flex:1}
-.day-header .arrow{color:#555;font-size:12px;transition:transform .2s}
+#sidebar h1{font-size:19px;font-weight:700;color:#f0f0f0;margin-bottom:2px}
+#sidebar .sub{color:#818cf8;font-size:12px;margin-bottom:16px;line-height:1.5}
+.day-group{margin-bottom:8px}
+.day-header{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;cursor:pointer;transition:all .15s;user-select:none}
+.day-header:hover{background:rgba(255,255,255,.04)}
+.day-header .pindot{width:10px;height:14px;flex-shrink:0;background:currentColor;clip-path:path('M5 0C2.2 0 0 2.2 0 5c0 3.7 5 9 5 9s5-5.3 5-9C10 2.2 7.8 0 5 0z')}
+.day-header .pindot-inner{width:4px;height:4px;border-radius:50%;background:#0f0f1e;position:absolute;top:5px;left:3px}
+.pindot-wrap{position:relative;width:10px;height:14px;flex-shrink:0}
+.day-header .date-label{font-weight:600;font-size:13px;color:#e0e0e0;min-width:48px}
+.day-header .day-title{font-size:12px;color:#888;flex:1}
+.day-header .arrow{color:#444;font-size:11px;transition:transform .2s}
 .day-header.open .arrow{transform:rotate(90deg)}
-.day-body{padding:4px 12px 8px 32px;display:none}
+.day-body{padding:2px 12px 6px 70px;display:none}
 .day-body.open{display:block}
-.day-item{font-size:13px;color:#c0c0d0;padding:4px 0;line-height:1.5}
+.day-item{font-size:12px;color:#b0b0c0;padding:3px 0;line-height:1.5}
 .day-item .loc{color:#818cf8;font-weight:500}
-.day-item .time{color:#f59e0b;font-size:11px;white-space:nowrap}
+.day-item .tag{color:#f59e0b;font-size:10px;background:rgba(245,158,11,.12);padding:1px 6px;border-radius:3px;margin-left:4px}
+.day-item.gray{color:#555}
 
-/* Scrollbar */
 #sidebar::-webkit-scrollbar{width:4px}
 #sidebar::-webkit-scrollbar-track{background:transparent}
 #sidebar::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
 
-.leaflet-popup-content-wrapper{background:#1a1a2e!important;color:#e0e0e0!important;border-radius:10px!important;border:1px solid rgba(255,255,255,.1);box-shadow:0 4px 20px rgba(0,0,0,.5)!important}
-.leaflet-popup-tip{background:#1a1a2e!important}
+.leaflet-popup-content-wrapper{background:#16162a!important;color:#e0e0e0!important;border-radius:10px!important;border:1px solid rgba(255,255,255,.1);box-shadow:0 4px 24px rgba(0,0,0,.6)!important}
+.leaflet-popup-tip{background:#16162a!important}
 .leaflet-popup-content{margin:10px 14px!important;font-size:13px;line-height:1.5}
-.leaflet-control-zoom a{background:#1a1a2e!important;color:#e0e0e0!important;border-color:#333!important}
+.leaflet-control-zoom a{background:#16162a!important;color:#e0e0e0!important;border-color:#333!important}
+.leaflet-control-zoom a:hover{background:#1e1e3a!important}
 </style>
 </head>
 <body>
 <div class="layout">
 <div id="sidebar">
   <h1>美国西部行程 2026</h1>
-  <div class="sub">8/12 西安出发 → 8/22 回国 · 康杰+白雪(12-22) · 白文+Sybils(12-29)</div>
+  <div class="sub">8/12 西安出发 · 康杰+白雪(12-22) · 白文+Sybils(12-29)</div>
 
   <div class="day-group">
     <div class="day-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      <span class="dot" style="background:#6366f1"></span>
-      <span class="date-label">8/12 一</span>
-      <span class="day-title">抵达LA → Anaheim</span>
+      <div class="pindot-wrap"><div class="pindot" style="color:#6366f1"></div><div class="pindot-inner"></div></div>
+      <span class="date-label">8/12</span>
+      <span class="day-title">抵LA→Anaheim</span>
       <span class="arrow">▸</span>
     </div>
     <div class="day-body open">
-      <div class="day-item"><span class="time">下午</span> 抵达<span class="loc">洛杉矶LAX</span></div>
-      <div class="day-item"><span class="time">途中</span> <span class="loc">San Bernardino</span> 午餐休息</div>
-      <div class="day-item"><span class="time">途经</span> <span class="loc">Montclair Hospital</span> Medical Center</div>
-      <div class="day-item"><span class="time">晚</span> 入住<span class="loc">Anaheim</span></div>
+      <div class="day-item"><span class="loc">洛杉矶 LAX</span> 抵达</div>
+      <div class="day-item"><span class="loc">San Bernardino</span> 午餐<span class="tag">途经</span></div>
+      <div class="day-item"><span class="loc">Montclair Hospital</span> Medical Center<span class="tag">顺路</span></div>
+      <div class="day-item"><span class="loc">Anaheim</span> 入住5晚</div>
     </div>
   </div>
 
   <div class="day-group">
     <div class="day-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      <span class="dot" style="background:#f59e0b"></span>
-      <span class="date-label">8/13 二</span>
+      <div class="pindot-wrap"><div class="pindot" style="color:#f59e0b"></div><div class="pindot-inner"></div></div>
+      <span class="date-label">8/13</span>
       <span class="day-title">迪士尼乐园</span>
       <span class="arrow">▸</span>
     </div>
     <div class="day-body">
-      <div class="day-item"><span class="time">全天</span> <span class="loc">迪士尼乐园</span> + California Adventure</div>
+      <div class="day-item"><span class="loc">迪士尼乐园</span> + California Adventure 全天</div>
     </div>
   </div>
 
   <div class="day-group">
     <div class="day-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      <span class="dot" style="background:#f59e0b"></span>
-      <span class="date-label">8/14 三</span>
-      <span class="day-title">环球影城 + Caltech</span>
+      <div class="pindot-wrap"><div class="pindot" style="color:#f59e0b"></div><div class="pindot-inner"></div></div>
+      <span class="date-label">8/14</span>
+      <span class="day-title">环球影城+Caltech</span>
       <span class="arrow">▸</span>
     </div>
     <div class="day-body">
-      <div class="day-item"><span class="time">上午~下午</span> <span class="loc">环球影城 Hollywood</span></div>
-      <div class="day-item"><span class="time">傍晚</span> <span class="loc">Caltech</span> 校园参观</div>
+      <div class="day-item"><span class="loc">环球影城</span> Hollywood 白天</div>
+      <div class="day-item"><span class="loc">Caltech</span> 傍晚校园</div>
     </div>
   </div>
 
   <div class="day-group">
     <div class="day-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      <span class="dot" style="background:#f59e0b"></span>
-      <span class="date-label">8/15 四</span>
-      <span class="day-title">Santa Monica → Getty → Griffith</span>
+      <div class="pindot-wrap"><div class="pindot" style="color:#f59e0b"></div><div class="pindot-inner"></div></div>
+      <span class="date-label">8/15</span>
+      <span class="day-title">Pier→Getty→Griffith</span>
       <span class="arrow">▸</span>
     </div>
     <div class="day-body">
-      <div class="day-item"><span class="time">上午</span> <span class="loc">Santa Monica Pier</span> 海滩栈桥</div>
-      <div class="day-item"><span class="time">中午~下午</span> <span class="loc">Getty Center</span> 博物馆+花园</div>
-      <div class="day-item"><span class="time">傍晚</span> <span class="loc">Griffith Observatory</span> 日落+夜景</div>
+      <div class="day-item"><span class="loc">Santa Monica Pier</span> 上午海滩</div>
+      <div class="day-item"><span class="loc">Getty Center</span> 博物馆+花园</div>
+      <div class="day-item"><span class="loc">Griffith Observatory</span> 日落夜景</div>
     </div>
   </div>
 
   <div class="day-group">
     <div class="day-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      <span class="dot" style="background:#f59e0b"></span>
-      <span class="date-label">8/16 五</span>
+      <div class="pindot-wrap"><div class="pindot" style="color:#f59e0b"></div><div class="pindot-inner"></div></div>
+      <span class="date-label">8/16</span>
       <span class="day-title">San Diego Zoo</span>
       <span class="arrow">▸</span>
     </div>
     <div class="day-body">
-      <div class="day-item"><span class="time">全天</span> <span class="loc">San Diego Zoo</span> 开车1.5h</div>
+      <div class="day-item"><span class="loc">San Diego Zoo</span> 全天（开车1.5h）</div>
     </div>
   </div>
 
   <div class="day-group">
     <div class="day-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      <span class="dot" style="background:#06b6d4"></span>
-      <span class="date-label">8/17 六</span>
-      <span class="day-title">飞黄石 · 下8字</span>
+      <div class="pindot-wrap"><div class="pindot" style="color:#06b6d4"></div><div class="pindot-inner"></div></div>
+      <span class="date-label">8/17</span>
+      <span class="day-title">飞黄石·下8字</span>
       <span class="arrow">▸</span>
     </div>
     <div class="day-body">
-      <div class="day-item"><span class="time">上午</span> Anaheim → <span class="loc">LAX</span> → 飞 <span class="loc">Bozeman</span></div>
-      <div class="day-item"><span class="time">下午~晚</span> <span class="loc">黄石下8字</span> 老忠实/大棱镜/西拇指</div>
+      <div class="day-item">LAX <span class="tag">✈</span> <span class="loc">Bozeman</span></div>
+      <div class="day-item"><span class="loc">黄石下8字</span> 老忠实/大棱镜/西拇指</div>
     </div>
   </div>
 
   <div class="day-group">
     <div class="day-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      <span class="dot" style="background:#f59e0b"></span>
-      <span class="date-label">8/18 日</span>
+      <div class="pindot-wrap"><div class="pindot" style="color:#f59e0b"></div><div class="pindot-inner"></div></div>
+      <span class="date-label">8/18</span>
       <span class="day-title">黄石上8字</span>
       <span class="arrow">▸</span>
     </div>
     <div class="day-body">
-      <div class="day-item"><span class="time">全天</span> <span class="loc">黄石上8字</span> 猛犸热泉/黄石峡谷/高塔瀑布</div>
+      <div class="day-item"><span class="loc">黄石上8字</span> 猛犸热泉/峡谷/高塔瀑布</div>
     </div>
   </div>
 
   <div class="day-group">
     <div class="day-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      <span class="dot" style="background:#06b6d4"></span>
-      <span class="date-label">8/19 一</span>
+      <div class="pindot-wrap"><div class="pindot" style="color:#06b6d4"></div><div class="pindot-inner"></div></div>
+      <span class="date-label">8/19</span>
       <span class="day-title">飞St Paul</span>
       <span class="arrow">▸</span>
     </div>
     <div class="day-body">
-      <div class="day-item"><span class="time">下午</span> 飞 <span class="loc">St Paul, MN</span></div>
-      <div class="day-item"><span class="time">晚</span> 入住（朋友家/酒店）</div>
+      <div class="day-item"><span class="tag">✈</span> 飞 <span class="loc">St Paul, MN</span></div>
     </div>
   </div>
 
   <div class="day-group">
     <div class="day-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      <span class="dot" style="background:#ef4444"></span>
-      <span class="date-label">8/20~22</span>
-      <span class="day-title">St Paul 休整</span>
+      <div class="pindot-wrap"><div class="pindot" style="color:#ef4444"></div><div class="pindot-inner"></div></div>
+      <span class="date-label">8/20-22</span>
+      <span class="day-title">St Paul休整</span>
       <span class="arrow">▸</span>
     </div>
     <div class="day-body">
-      <div class="day-item"><span class="time">8/20-21</span> <span class="loc">St Paul</span> 休整游览</div>
-      <div class="day-item"><span class="time">8/22</span> 康杰+白雪 回国</div>
-      <div class="day-item" style="color:#666">白文+Sybils 8/29 回国</div>
+      <div class="day-item"><span class="loc">St Paul</span> 休整游览</div>
+      <div class="day-item">康杰+白雪 <span class="tag">8/22回国</span></div>
+      <div class="day-item gray">白文+Sybils 8/29回国</div>
     </div>
   </div>
 </div>
@@ -179,49 +181,58 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   subdomains: 'abcd'
 }).addTo(map);
 
-// Icons
-function makeIcon(color, shape) {
+// ---- Teardrop Pin Icons ----
+function pinSvg(color, innerSvg) {
   return L.divIcon({
-    html: `<svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="${color}" stroke="#fff" stroke-width="2"/>${shape}</svg>`,
-    iconSize: [22, 22],
-    iconAnchor: [11, 11],
-    popupAnchor: [0, -12]
+    html: `<svg width="26" height="36" viewBox="0 0 26 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13 35C13 35 2 22 2 11a11 11 0 0 1 22 0c0 11-11 24-11 24z" fill="${color}" stroke="#fff" stroke-width="1.5"/>
+      <circle cx="13" cy="11" r="7" fill="${color}" stroke="#fff" stroke-width="1.2"/>
+      ${innerSvg}
+    </svg>`,
+    iconSize: [26, 36],
+    iconAnchor: [13, 36],
+    popupAnchor: [0, -36]
   });
 }
-const iconStay = makeIcon('#6366f1', '<path d="M12 8v8M8 12h8" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>');
-const iconDay  = makeIcon('#f59e0b', '');
-const iconFly  = makeIcon('#06b6d4', '<line x1="8" y1="8" x2="16" y2="16" stroke="#fff" stroke-width="1.2"/><line x1="16" y1="8" x2="8" y2="16" stroke="#fff" stroke-width="1.2"/>');
-const iconEnd  = makeIcon('#ef4444', '<rect x="9" y="9" width="6" height="6" rx="1" fill="#fff"/>');
-const iconHsp  = makeIcon('#f43f5e', '<path d="M12 8v8M8 12h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/>');
 
+const iconCity = (c) => pinSvg(c, '<circle cx="13" cy="11" r="3.5" fill="#fff"/>');
+const iconStay = (c) => pinSvg(c, '<path d="M11 9l2-2 2 2v3h-1v-2h-2v2h-1V9zM10.5 12h5v1.5h-5V12z" fill="#fff"/>');
+const iconStar = (c) => pinSvg(c, '<path d="M13 7.5l1 2 2.2.3-1.6 1.6.4 2.2-2-1-2 1 .4-2.2L9.8 9.8 12 9.5l1-2z" fill="#fff"/>');
+const iconPin = (c) => pinSvg(c, '<circle cx="13" cy="11" r="3.5" fill="#fff"/>');
+const iconEnd = (c) => pinSvg(c, '<rect x="11" y="9" width="4" height="4" rx=".8" fill="#fff"/>');
+const iconHsp = (c) => pinSvg(c, '<path d="M13 8v6M10 11h6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>');
+const iconFly = (c) => pinSvg(c, '<path d="M10 13l3-4 3 4M13 9v5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>');
+const iconPark = (c) => pinSvg(c, '<path d="M10 13l1.5-4h3L16 13h-1.5l-.3-1h-2.4l-.3 1H10z" fill="#fff"/>');
+
+// Stops data
 const stops = [
-  {name:'LAX', coords:[33.9416,-118.4085], date:'8/12', desc:'抵达洛杉矶', icon:iconDay, color:'#f59e0b'},
-  {name:'San Bernardino', coords:[34.1083,-117.2898], date:'8/12', desc:'午餐休息', icon:iconDay, color:'#f59e0b'},
-  {name:'Montclair Hospital', coords:[34.0779,-117.6897], date:'8/12', desc:'Medical Center', icon:iconHsp, color:'#f43f5e'},
-  {name:'Anaheim', coords:[33.8366,-117.9143], date:'8/12-16', desc:'住宿基地 5晚', icon:iconStay, color:'#6366f1'},
-  {name:'Disneyland', coords:[33.8121,-117.9190], date:'8/13', desc:'迪士尼乐园', icon:iconDay, color:'#f59e0b'},
-  {name:'环球影城', coords:[34.1381,-118.3534], date:'8/14', desc:'Universal Studios', icon:iconDay, color:'#f59e0b'},
-  {name:'Caltech', coords:[34.1377,-118.1253], date:'8/14', desc:'加州理工', icon:iconDay, color:'#f59e0b'},
-  {name:'Santa Monica', coords:[34.0094,-118.4973], date:'8/15', desc:'海滩栈桥', icon:iconDay, color:'#f59e0b'},
-  {name:'Getty Center', coords:[34.0771,-118.4748], date:'8/15', desc:'博物馆+花园', icon:iconDay, color:'#f59e0b'},
-  {name:'Griffith Observatory', coords:[34.1184,-118.3004], date:'8/15', desc:'天文台日落', icon:iconDay, color:'#f59e0b'},
-  {name:'San Diego Zoo', coords:[32.7360,-117.1510], date:'8/16', desc:'开车1.5h', icon:iconDay, color:'#f59e0b'},
-  {name:'LAX', coords:[33.9416,-118.4085], date:'8/17', desc:'飞黄石', icon:iconFly, color:'#06b6d4'},
-  {name:'Yellowstone', coords:[44.6200,-110.4900], date:'8/17-19', desc:'黄石国家公园', icon:iconStay, color:'#6366f1'},
-  {name:'Old Faithful', coords:[44.4605,-110.8288], date:'8/17-18', desc:'老忠实泉', icon:iconDay, color:'#f59e0b'},
-  {name:'Grand Prismatic', coords:[44.5250,-110.8378], date:'8/18', desc:'大棱镜彩泉', icon:iconDay, color:'#f59e0b'},
-  {name:'St Paul MN', coords:[44.9537,-93.0899], date:'8/19-22', desc:'终点', icon:iconEnd, color:'#ef4444'}
+  {n:'洛杉矶 LAX', p:[33.9416,-118.4085], d:'8/12 抵达', t:'机场', i:iconFly('#10b981')},
+  {n:'San Bernardino', p:[34.1083,-117.2898], d:'8/12 午餐休息', t:'途经', i:iconPin('#f59e0b')},
+  {n:'Montclair Hospital', p:[34.0779,-117.6897], d:'Montclair Medical Center', t:'医院', i:iconHsp('#f43f5e')},
+  {n:'Anaheim', p:[33.8366,-117.9143], d:'住宿基地 5晚', t:'住宿', i:iconStay('#6366f1')},
+  {n:'迪士尼乐园', p:[33.8121,-117.9190], d:'Disneyland + CA Adventure', t:'乐园', i:iconStar('#f59e0b')},
+  {n:'环球影城', p:[34.1381,-118.3534], d:'Universal Studios Hollywood', t:'乐园', i:iconStar('#f59e0b')},
+  {n:'Caltech', p:[34.1377,-118.1253], d:'加州理工学院', t:'校园', i:iconPin('#f59e0b')},
+  {n:'Santa Monica Pier', p:[34.0094,-118.4973], d:'海滩栈桥', t:'景点', i:iconPin('#f59e0b')},
+  {n:'Getty Center', p:[34.0771,-118.4748], d:'博物馆+花园', t:'景点', i:iconPin('#f59e0b')},
+  {n:'Griffith Observatory', p:[34.1184,-118.3004], d:'天文台日落', t:'景点', i:iconPin('#f59e0b')},
+  {n:'San Diego Zoo', p:[32.7360,-117.1510], d:'世界著名动物园', t:'动物园', i:iconPark('#f59e0b')},
+  {n:'Bozeman', p:[45.6770,-111.0429], d:'黄石最近机场', t:'转机', i:iconFly('#06b6d4')},
+  {n:'黄石国家公园', p:[44.6200,-110.4900], d:'3天2晚', t:'住宿', i:iconStay('#6366f1')},
+  {n:'Old Faithful', p:[44.4605,-110.8288], d:'老忠实泉', t:'景点', i:iconPin('#f59e0b')},
+  {n:'Grand Prismatic', p:[44.5250,-110.8378], d:'大棱镜彩泉', t:'景点', i:iconPin('#f59e0b')},
+  {n:'St Paul MN', p:[44.9537,-93.0899], d:'终点 休整4天', t:'终点', i:iconEnd('#ef4444')}
 ];
 
-// Lines
+// Routes
 const routes = [
-  {pts:[[33.9416,-118.4085],[34.1083,-117.2898],[34.0779,-117.6897],[33.8366,-117.9143]], c:'#6366f1', d:'8,6', l:'8/12 驱车'},
+  {pts:[[33.9416,-118.4085],[34.1083,-117.2898],[34.0779,-117.6897],[33.8366,-117.9143]], c:'#6366f1', d:'8,6', l:'8/12'},
   {pts:[[33.8366,-117.9143],[33.8121,-117.9190]], c:'#f59e0b', d:'5,5', l:'8/13'},
   {pts:[[33.8366,-117.9143],[34.1381,-118.3534],[34.1377,-118.1253],[33.8366,-117.9143]], c:'#f59e0b', d:'5,5', l:'8/14'},
   {pts:[[33.8366,-117.9143],[34.0094,-118.4973],[34.0771,-118.4748],[34.1184,-118.3004],[33.8366,-117.9143]], c:'#f59e0b', d:'5,5', l:'8/15'},
   {pts:[[33.8366,-117.9143],[32.7360,-117.1510],[33.8366,-117.9143]], c:'#f59e0b', d:'5,5', l:'8/16'},
-  {pts:[[33.8366,-117.9143],[33.9416,-118.4085],[44.6200,-110.4900]], c:'#06b6d4', d:'4,6', l:'8/17 ✈'},
-  {pts:[[44.6200,-110.4900],[44.9537,-93.0899]], c:'#06b6d4', d:'4,6', l:'8/19 ✈'}
+  {pts:[[33.8366,-117.9143],[33.9416,-118.4085],[45.6770,-111.0429],[44.6200,-110.4900]], c:'#06b6d4', d:'4,6', l:'8/17 \u2708'},
+  {pts:[[44.6200,-110.4900],[44.9537,-93.0899]], c:'#06b6d4', d:'4,6', l:'8/19 \u2708'}
 ];
 
 routes.forEach(r => {
@@ -233,7 +244,7 @@ routes.forEach(r => {
     const mid = r.pts[Math.floor(r.pts.length/2)];
     L.marker(mid, {
       icon: L.divIcon({
-        html:`<div style="background:rgba(13,13,26,.85);border:1px solid ${r.c};color:${r.c};padding:1px 7px;border-radius:4px;font-size:10px;font-weight:600;white-space:nowrap">${r.l}</div>`,
+        html:`<div style="background:rgba(15,15,30,.9);border:1px solid ${r.c};color:${r.c};padding:1px 7px;border-radius:4px;font-size:10px;font-weight:600;white-space:nowrap">${r.l}</div>`,
         iconSize:[0,0], className:''
       })
     }).addTo(map);
@@ -241,12 +252,11 @@ routes.forEach(r => {
 });
 
 stops.forEach(s => {
-  const m = L.marker(s.coords, {icon:s.icon}).addTo(map);
-  m.bindPopup(`<strong>${s.name}</strong><br><span style="color:#f59e0b;font-size:12px">${s.date}</span><br><span style="color:#a0a0b0;font-size:12px">${s.desc}</span>`);
+  const m = L.marker(s.p, {icon:s.i}).addTo(map);
+  m.bindPopup(`<strong>${s.n}</strong><br><span style="color:${s.t==='医院'?'#f43f5e':'#f59e0b'};font-size:11px">${s.d}</span>`);
 });
 
-// Fit US only
-const usBounds = L.latLngBounds(stops.map(s => s.coords));
+const usBounds = L.latLngBounds(stops.map(s => s.p));
 map.fitBounds(usBounds.pad(0.12));
 </script>
 </body>
