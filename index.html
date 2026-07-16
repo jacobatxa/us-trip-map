@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>美国西部行程地图 2026.8</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d0d1a;font-family:'Inter','SF Pro','Segoe UI',sans-serif;color:#e0e0e0;overflow:hidden;height:100vh}
+#map{width:100vw;height:100vh;z-index:1}
+.leaflet-control-zoom a{background:#1a1a2e!important;color:#e0e0e0!important;border-color:#333!important}
+.leaflet-control-zoom{position:relative;z-index:1000}
+.leaflet-popup-content-wrapper{background:#1a1a2e!important;color:#e0e0e0!important;border-radius:12px!important;box-shadow:0 8px 32px rgba(0,0,0,.6)!important;border:1px solid rgba(255,255,255,.08)}
+.leaflet-popup-tip{background:#1a1a2e!important}
+.leaflet-popup-content{margin:12px 16px!important;font-size:14px;line-height:1.6}
+.leaflet-popup-content strong{color:#818cf8}
+.leaflet-popup-content .date{color:#f59e0b;font-weight:600}
+.leaflet-popup-content .desc{color:#a0a0b0;font-size:12px;margin-top:4px}
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<script>
+const map = L.map('map', {
+  center: [37.5, -112],
+  zoom: 5,
+  zoomControl: true,
+  attributionControl: false
+});
+
+// Dark tile layer
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  maxZoom: 19,
+  subdomains: 'abcd'
+}).addTo(map);
+
+// ---- Custom Icons ----
+const iconStart = L.divIcon({
+  html: '<svg width="28" height="28" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#10b981" stroke="#fff" stroke-width="2"/><polygon points="12,6 16,14 8,14" fill="#fff"/></svg>',
+  iconSize: [28, 28],
+  iconAnchor: [14, 14],
+  popupAnchor: [0, -16]
+});
+
+const iconEnd = L.divIcon({
+  html: '<svg width="28" height="28" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ef4444" stroke="#fff" stroke-width="2"/><rect x="9" y="9" width="6" height="6" rx="1" fill="#fff"/></svg>',
+  iconSize: [28, 28],
+  iconAnchor: [14, 14],
+  popupAnchor: [0, -16]
+});
+
+const iconStay = L.divIcon({
+  html: '<svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#6366f1" stroke="#fff" stroke-width="2"/><path d="M12 6v4M12 14v4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+  popupAnchor: [0, -14]
+});
+
+const iconDay = L.divIcon({
+  html: '<svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="#f59e0b" stroke="#fff" stroke-width="2"/></svg>',
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
+  popupAnchor: [0, -12]
+});
+
+const iconFlight = L.divIcon({
+  html: '<svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#06b6d4" stroke="#fff" stroke-width="2"/><path d="M12 5v2M12 17v2M5 12h2M17 12h2" stroke="#fff" stroke-width="1.2"/></svg>',
+  iconSize: [22, 22],
+  iconAnchor: [11, 11],
+  popupAnchor: [0, -13]
+});
+
+// ---- Data ----
+const stops = [
+  {
+    name: '洛杉矶 LAX',
+    latlng: [33.9416, -118.4085],
+    date: '8/12 抵达',
+    desc: '抵达洛杉矶国际机场，取行李后租车（或不租车叫Uber）',
+    icon: 'start',
+    color: '#10b981'
+  },
+  {
+    name: 'San Bernardino',
+    latlng: [34.1083, -117.2898],
+    date: '8/12 途经',
+    desc: 'LAX→Anaheim途中经停，休息/午餐约1小时',
+    icon: 'day',
+    color: '#f59e0b'
+  },
+  {
+    name: 'Anaheim（住宿基地）',
+    latlng: [33.8366, -117.9143],
+    date: '8/12~8/16 5晚',
+    desc: '入住酒店/Airbnb。迪士尼（8/13）、环球影城（8/14）、Santa Monica（8/15）、San Diego（8/16）的基地',
+    icon: 'stay',
+    color: '#6366f1'
+  },
+  {
+    name: '迪士尼乐园',
+    latlng: [33.8121, -117.9190],
+    date: '8/13 全天',
+    desc: '迪士尼乐园 + California Adventure。Sybils 9岁，肯定开心',
+    icon: 'day',
+    color: '#f59e0b'
+  },
+  {
+    name: '环球影城 Hollywood',
+    latlng: [34.1381, -118.3534],
+    date: '8/14 上午~傍晚',
+    desc: '环球影城 Studio Tour，适合全家',
+    icon: 'day',
+    color: '#f59e0b'
+  },
+  {
+    name: 'Caltech',
+    latlng: [34.1377, -118.1253],
+    date: '8/14 傍晚',
+    desc: '加州理工学院校园参观，AI相关可能感兴趣',
+    icon: 'day',
+    color: '#f59e0b'
+  },
+  {
+    name: 'Santa Monica',
+    latlng: [34.0195, -118.4912],
+    date: '8/15 上午',
+    desc: '海滩 + 圣莫尼卡医院（如有需要）',
+    icon: 'day',
+    color: '#f59e0b'
+  },
+  {
+    name: 'Getty Center',
+    latlng: [34.0771, -118.4748],
+    date: '8/15 中午~下午',
+    desc: '免费博物馆+花园，俯瞰LA全景',
+    icon: 'day',
+    color: '#f59e0b'
+  },
+  {
+    name: 'Griffith Observatory',
+    latlng: [34.1184, -118.3004],
+    date: '8/15 傍晚',
+    desc: '天文台日落+夜景，Hollywood标志合影',
+    icon: 'day',
+    color: '#f59e0b'
+  },
+  {
+    name: 'San Diego Zoo',
+    latlng: [32.7360, -117.1510],
+    date: '8/16 全天',
+    desc: '世界著名动物园，开车约1.5小时到Anaheim',
+    icon: 'day',
+    color: '#f59e0b'
+  },
+  {
+    name: '✈ LAX→Bozeman（飞黄石）',
+    latlng: [33.9416, -118.4085],
+    date: '8/17 上午',
+    desc: '从Anaheim回LAX，飞往Bozeman（黄石最近机场）',
+    icon: 'flight',
+    color: '#06b6d4'
+  },
+  {
+    name: '黄石国家公园',
+    latlng: [44.6200, -110.4900],
+    date: '8/17~8/19',
+    desc: '3天2晚。Day1 到达+下8字（老忠实/大棱镜/西拇指）\nDay2 上8字（猛犸热泉/黄石峡谷/高塔瀑布）\n住：West Yellowstone或园内',
+    icon: 'stay',
+    color: '#6366f1'
+  },
+  {
+    name: 'Old Faithful',
+    latlng: [44.4605, -110.8288],
+    date: '8/17~18',
+    desc: '老忠实间歇泉+大棱镜彩泉',
+    icon: 'day',
+    color: '#f59e0b'
+  },
+  {
+    name: 'Grand Prismatic Spring',
+    latlng: [44.5250, -110.8378],
+    date: '8/18',
+    desc: '大棱镜彩泉，必去',
+    icon: 'day',
+    color: '#f59e0b'
+  },
+  {
+    name: '✈ 飞 St Paul',
+    latlng: [44.7400, -110.4100],
+    date: '8/19 下午',
+    desc: '从Bozeman/Jackson Hole飞往明尼苏达St Paul',
+    icon: 'flight',
+    color: '#06b6d4'
+  },
+  {
+    name: 'St Paul, MN',
+    latlng: [44.9537, -93.0899],
+    date: '8/19~8/22',
+    desc: '4晚。住朋友家/酒店。休整+游览\n白文家8/29 回国\n康杰+白雪 8/22 回国',
+    icon: 'end',
+    color: '#ef4444'
+  },
+  {
+    name: '首尔经停',
+    latlng: [37.4602, 126.4407],
+    date: '往返',
+    desc: '西安→首尔→LAX（去程）\nSt Paul→首尔→西安（回程）',
+    icon: 'day',
+    color: '#f59e0b'
+  }
+];
+
+// ---- Lines ----
+const routeSegments = [
+  // LA leg (drive routes)
+  { points: [[33.9416,-118.4085],[34.1083,-117.2898],[33.8366,-117.9143]], color: '#6366f1', dash: '10,8', label: '8/12 驱车1.5h' },
+  { points: [[33.8366,-117.9143],[33.8121,-117.9190]], color: '#f59e0b', dash: '6,6', label: '8/13 Disney' },
+  { points: [[33.8366,-117.9143],[34.1381,-118.3534],[34.1377,-118.1253],[33.8366,-117.9143]], color: '#f59e0b', dash: '6,6', label: '8/14 环球+' },
+  { points: [[33.8366,-117.9143],[34.0195,-118.4912],[34.0771,-118.4748],[34.1184,-118.3004],[33.8366,-117.9143]], color: '#f59e0b', dash: '6,6', label: '8/15 Santa Monica→Getty→Griffith' },
+  { points: [[33.8366,-117.9143],[32.7360,-117.1510],[33.8366,-117.9143]], color: '#f59e0b', dash: '6,6', label: '8/16 SD Zoo' },
+  // Flight routes
+  { points: [[33.8366,-117.9143],[33.9416,-118.4085]], color: '#06b6d4', dash: '4,6', label: '回LAX' },
+  { points: [[33.9416,-118.4085],[44.6200,-110.4900]], color: '#06b6d4', dash: '4,6', label: '✈ LAX→Bozeman' },
+  { points: [[44.6200,-110.4900],[44.9537,-93.0899]], color: '#06b6d4', dash: '4,6', label: '✈ 黄石→St Paul' },
+  { points: [[44.9537,-93.0899],[37.4602,126.4407]], color: '#06b6d4', dash: '4,8', label: '✈ 回程经首尔' },
+  // International
+  { points: [[33.9416,-118.4085],[37.4602,126.4407]], color: '#06b6d4', dash: '4,8', label: '✈ 来程经首尔' }
+];
+
+// ---- Render ----
+// Route polylines
+routeSegments.forEach(seg => {
+  const midIdx = Math.floor(seg.points.length / 2);
+  L.polyline(seg.points, {
+    color: seg.color,
+    weight: seg.dash.startsWith('10') ? 3 : (seg.dash.startsWith('4') ? 2 : 2.5),
+    opacity: seg.color === '#6366f1' ? 0.7 : 0.6,
+    dashArray: seg.dash,
+    className: 'route-line'
+  }).addTo(map);
+
+  // Label at midpoint
+  if (seg.label) {
+    const mid = seg.points[midIdx];
+    L.marker(mid, {
+      icon: L.divIcon({
+        html: `<div style="background:rgba(13,13,26,.85);border:1px solid ${seg.color};color:${seg.color};padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;white-space:nowrap">${seg.label}</div>`,
+        iconSize: [0, 0],
+        className: ''
+      })
+    }).addTo(map);
+  }
+});
+
+// Stops
+stops.forEach(s => {
+  let icon;
+  switch(s.icon) {
+    case 'start': icon = iconStart; break;
+    case 'end': icon = iconEnd; break;
+    case 'stay': icon = iconStay; break;
+    case 'flight': icon = iconFlight; break;
+    default: icon = iconDay;
+  }
+
+  const marker = L.marker(s.latlng, { icon }).addTo(map);
+  marker.bindPopup(`
+    <div><span class="date">${s.date}</span></div>
+    <strong>${s.name}</strong>
+    <div class="desc">${s.desc.replace(/\n/g, '<br>')}</div>
+  `);
+});
+
+// ---- Legend ----
+const legend = L.control({ position: 'bottomleft' });
+legend.onAdd = () => {
+  const div = L.DomUtil.create('div', 'legend');
+  div.style.cssText = 'background:rgba(13,13,26,.9);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;font-size:12px;line-height:1.8;backdrop-filter:blur(8px)';
+  div.innerHTML = `
+    <div style="color:#e0e0e0;font-weight:600;margin-bottom:6px;font-size:13px">图例</div>
+    <div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#10b981;margin-right:8px"></span>起点 LAX</div>
+    <div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:8px"></span>终点 St Paul</div>
+    <div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#6366f1;margin-right:8px"></span>住宿基地</div>
+    <div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>日间景点</div>
+    <div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#06b6d4;margin-right:8px"></span>航班</div>
+    <hr style="border-color:rgba(255,255,255,.1);margin:6px 0">
+    <div><span style="display:inline-block;width:20px;height:2px;background:#6366f1;margin-right:8px;vertical-align:middle"></span>驾车路线</div>
+    <div><span style="display:inline-block;width:20px;height:2px;background:#06b6d4;margin-right:8px;vertical-align:middle;border-top:2px dashed #06b6d4"></span>飞行路线</div>
+  `;
+  return div;
+};
+legend.addTo(map);
+
+// Title
+const title = L.control({ position: 'topright' });
+title.onAdd = () => {
+  const div = L.DomUtil.create('div', 'title');
+  div.style.cssText = 'background:rgba(13,13,26,.85);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:14px 20px;backdrop-filter:blur(8px);text-align:right';
+  div.innerHTML = `
+    <div style="color:#e0e0e0;font-weight:700;font-size:18px">美国西部行程 2026</div>
+    <div style="color:#818cf8;font-size:12px;margin-top:2px">8/12 西安出发 → 8/22 回国</div>
+    <div style="color:#a0a0b0;font-size:11px;margin-top:4px">康杰+白雪(8/12-22) · 白文+Sybils(8/12-29)</div>
+  `;
+  return div;
+};
+title.addTo(map);
+
+// Fit bounds
+const group = L.featureGroup(stops.map(s => L.marker(s.latlng)));
+map.fitBounds(group.getBounds().pad(0.08));
+</script>
+</body>
+</html>
