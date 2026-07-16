@@ -73,29 +73,44 @@ const iconFlight = L.divIcon({
   popupAnchor: [0, -13]
 });
 
+const iconHospital = L.divIcon({
+  html: '<svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#f43f5e" stroke="#fff" stroke-width="2"/><path d="M12 7v10M7 12h10" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
+  iconSize: [22, 22],
+  iconAnchor: [11, 11],
+  popupAnchor: [0, -13]
+});
+
 // ---- Data ----
 const stops = [
   {
     name: '洛杉矶 LAX',
     latlng: [33.9416, -118.4085],
     date: '8/12 抵达',
-    desc: '抵达洛杉矶国际机场，取行李后租车（或不租车叫Uber）',
+    desc: '抵达洛杉矶国际机场，取行李后叫Uber/租车',
     icon: 'start',
     color: '#10b981'
   },
   {
     name: 'San Bernardino',
     latlng: [34.1083, -117.2898],
-    date: '8/12 途经',
-    desc: 'LAX→Anaheim途中经停，休息/午餐约1小时',
+    date: '8/12 午餐休息',
+    desc: 'LAX→Anaheim途中经停，休息午餐约1小时',
     icon: 'day',
     color: '#f59e0b'
+  },
+  {
+    name: 'Montclair Hospital',
+    latlng: [34.0779, -117.6897],
+    date: '8/12 途经',
+    desc: 'Montclair Hospital Medical Center<br>5000 San Bernardino St, Montclair CA<br>与San Bernardino同路线，顺路',
+    icon: 'hospital',
+    color: '#f43f5e'
   },
   {
     name: 'Anaheim（住宿基地）',
     latlng: [33.8366, -117.9143],
     date: '8/12~8/16 5晚',
-    desc: '入住酒店/Airbnb。迪士尼（8/13）、环球影城（8/14）、Santa Monica（8/15）、San Diego（8/16）的基地',
+    desc: '入住酒店/Airbnb。迪士尼（8/13）、环球影城（8/14）、Caltech（8/14傍晚）、Getty+Griffith（8/15）、San Diego（8/16）的基地',
     icon: 'stay',
     color: '#6366f1'
   },
@@ -124,10 +139,10 @@ const stops = [
     color: '#f59e0b'
   },
   {
-    name: 'Santa Monica',
-    latlng: [34.0195, -118.4912],
+    name: 'Santa Monica Pier',
+    latlng: [34.0094, -118.4973],
     date: '8/15 上午',
-    desc: '海滩 + 圣莫尼卡医院（如有需要）',
+    desc: '海滩/栈桥，带孩子玩一玩',
     icon: 'day',
     color: '#f59e0b'
   },
@@ -156,7 +171,7 @@ const stops = [
     color: '#f59e0b'
   },
   {
-    name: '✈ LAX→Bozeman（飞黄石）',
+    name: 'LAX飞黄石',
     latlng: [33.9416, -118.4085],
     date: '8/17 上午',
     desc: '从Anaheim回LAX，飞往Bozeman（黄石最近机场）',
@@ -188,7 +203,7 @@ const stops = [
     color: '#f59e0b'
   },
   {
-    name: '✈ 飞 St Paul',
+    name: '飞 St Paul',
     latlng: [44.7400, -110.4100],
     date: '8/19 下午',
     desc: '从Bozeman/Jackson Hole飞往明尼苏达St Paul',
@@ -199,7 +214,7 @@ const stops = [
     name: 'St Paul, MN',
     latlng: [44.9537, -93.0899],
     date: '8/19~8/22',
-    desc: '4晚。住朋友家/酒店。休整+游览\n白文家8/29 回国\n康杰+白雪 8/22 回国',
+    desc: '4晚。住朋友家/酒店。休整+游览\n白文家 8/29 回国\n康杰+白雪 8/22 回国',
     icon: 'end',
     color: '#ef4444'
   },
@@ -215,11 +230,12 @@ const stops = [
 
 // ---- Lines ----
 const routeSegments = [
-  // LA leg (drive routes)
-  { points: [[33.9416,-118.4085],[34.1083,-117.2898],[33.8366,-117.9143]], color: '#6366f1', dash: '10,8', label: '8/12 驱车1.5h' },
+  // 8/12: LAX → San Bernardino → Montclair Hospital → Anaheim
+  { points: [[33.9416,-118.4085],[34.1083,-117.2898],[34.0779,-117.6897],[33.8366,-117.9143]], color: '#6366f1', dash: '10,8', label: '8/12 驱车 2h' },
+  // Day trips out of Anaheim
   { points: [[33.8366,-117.9143],[33.8121,-117.9190]], color: '#f59e0b', dash: '6,6', label: '8/13 Disney' },
-  { points: [[33.8366,-117.9143],[34.1381,-118.3534],[34.1377,-118.1253],[33.8366,-117.9143]], color: '#f59e0b', dash: '6,6', label: '8/14 环球+' },
-  { points: [[33.8366,-117.9143],[34.0195,-118.4912],[34.0771,-118.4748],[34.1184,-118.3004],[33.8366,-117.9143]], color: '#f59e0b', dash: '6,6', label: '8/15 Santa Monica→Getty→Griffith' },
+  { points: [[33.8366,-117.9143],[34.1381,-118.3534],[34.1377,-118.1253],[33.8366,-117.9143]], color: '#f59e0b', dash: '6,6', label: '8/14 环球+Caltech' },
+  { points: [[33.8366,-117.9143],[34.0094,-118.4973],[34.0771,-118.4748],[34.1184,-118.3004],[33.8366,-117.9143]], color: '#f59e0b', dash: '6,6', label: '8/15 Pier→Getty→Griffith' },
   { points: [[33.8366,-117.9143],[32.7360,-117.1510],[33.8366,-117.9143]], color: '#f59e0b', dash: '6,6', label: '8/16 SD Zoo' },
   // Flight routes
   { points: [[33.8366,-117.9143],[33.9416,-118.4085]], color: '#06b6d4', dash: '4,6', label: '回LAX' },
@@ -263,6 +279,7 @@ stops.forEach(s => {
     case 'end': icon = iconEnd; break;
     case 'stay': icon = iconStay; break;
     case 'flight': icon = iconFlight; break;
+    case 'hospital': icon = iconHospital; break;
     default: icon = iconDay;
   }
 
@@ -285,6 +302,7 @@ legend.onAdd = () => {
     <div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:8px"></span>终点 St Paul</div>
     <div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#6366f1;margin-right:8px"></span>住宿基地</div>
     <div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f59e0b;margin-right:8px"></span>日间景点</div>
+    <div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f43f5e;margin-right:8px"></span>医院</div>
     <div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#06b6d4;margin-right:8px"></span>航班</div>
     <hr style="border-color:rgba(255,255,255,.1);margin:6px 0">
     <div><span style="display:inline-block;width:20px;height:2px;background:#6366f1;margin-right:8px;vertical-align:middle"></span>驾车路线</div>
