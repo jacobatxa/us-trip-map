@@ -3,175 +3,283 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>美国西部行程 2026.8</title>
+<title>美国西部行程地图 2026.8</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;background:#0d0d1a;font-family:'Inter','SF Pro','Segoe UI',sans-serif;color:#e0e0e0}
-.layout{display:flex;height:100vh}
-#sidebar{width:360px;min-width:360px;overflow-y:auto;padding:20px;border-right:1px solid rgba(255,255,255,.08);background:#0f0f1e}
-#map{flex:1}
-#sidebar h1{font-size:19px;font-weight:700;color:#f0f0f0;margin-bottom:2px}
-#sidebar .sub{color:#818cf8;font-size:12px;margin-bottom:16px;line-height:1.5}
-.day-group{margin-bottom:8px}
-.day-header{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;cursor:pointer;transition:all .15s;user-select:none}
+body{background:#0d0d1a;font-family:'Inter','SF Pro','Segoe UI',sans-serif;color:#e0e0e0;height:100vh;display:flex}
+
+/* Sidebar */
+#sidebar{
+  width:340px;min-width:340px;
+  background:#12121f;
+  border-right:1px solid rgba(255,255,255,.06);
+  display:flex;flex-direction:column;
+  overflow:hidden;z-index:2
+}
+#sidebar-header{
+  padding:20px 20px 16px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  flex-shrink:0
+}
+#sidebar-header h1{font-size:18px;font-weight:800;color:#fff;margin-bottom:4px}
+#sidebar-header .sub{font-size:12px;color:#818cf8}
+#sidebar-header .meta{font-size:11px;color:#6b6b80;margin-top:4px}
+#sidebar-content{flex:1;overflow-y:auto;padding:12px 0}
+#sidebar-content::-webkit-scrollbar{width:4px}
+#sidebar-content::-webkit-scrollbar-track{background:transparent}
+#sidebar-content::-webkit-scrollbar-thumb{background:#2a2a3e;border-radius:2px}
+
+.day-group{padding:0 16px;margin-bottom:8px}
+.day-header{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:8px;
+  cursor:pointer;transition:background .15s;
+  user-select:none
+}
 .day-header:hover{background:rgba(255,255,255,.04)}
-.day-header .pindot{width:10px;height:14px;flex-shrink:0;background:currentColor;clip-path:path('M5 0C2.2 0 0 2.2 0 5c0 3.7 5 9 5 9s5-5.3 5-9C10 2.2 7.8 0 5 0z')}
-.day-header .pindot-inner{width:4px;height:4px;border-radius:50%;background:#0f0f1e;position:absolute;top:5px;left:3px}
-.pindot-wrap{position:relative;width:10px;height:14px;flex-shrink:0}
-.day-header .date-label{font-weight:600;font-size:13px;color:#e0e0e0;min-width:48px}
-.day-header .day-title{font-size:12px;color:#888;flex:1}
-.day-header .arrow{color:#444;font-size:11px;transition:transform .2s}
-.day-header.open .arrow{transform:rotate(90deg)}
-.day-body{padding:2px 12px 6px 70px;display:none}
-.day-body.open{display:block}
-.day-item{font-size:12px;color:#b0b0c0;padding:3px 0;line-height:1.5}
-.day-item .loc{color:#818cf8;font-weight:500}
-.day-item .tag{color:#f59e0b;font-size:10px;background:rgba(245,158,11,.12);padding:1px 6px;border-radius:3px;margin-left:4px}
-.day-item.gray{color:#555}
+.day-num{
+  width:28px;height:28px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:#fff;flex-shrink:0
+}
+.day-info{flex:1;min-width:0}
+.day-label{font-size:13px;font-weight:600;color:#e0e0e0}
+.day-route{font-size:11px;color:#6b6b80;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.day-toggle{color:#4a4a60;font-size:10px;transition:transform .2s}
+.day-toggle.open{transform:rotate(180deg)}
+.day-stops{display:none;padding:6px 12px 12px 42px}
+.day-stops.open{display:block}
+.stop-item{
+  display:flex;align-items:flex-start;gap:8px;
+  padding:6px 0;font-size:12px;line-height:1.5
+}
+.stop-dot{
+  width:6px;height:6px;border-radius:50%;flex-shrink:0;
+  margin-top:5px;
+  box-shadow:0 0 0 2px rgba(13,13,26,.9)
+}
+.stop-text{flex:1;min-width:0}
+.stop-name{color:#d0d0e0;font-weight:500}
+.stop-time{color:#6b6b80;font-size:11px}
 
-#sidebar::-webkit-scrollbar{width:4px}
-#sidebar::-webkit-scrollbar-track{background:transparent}
-#sidebar::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+/* Map */
+#map{flex:1;z-index:1}
 
-.leaflet-popup-content-wrapper{background:#16162a!important;color:#e0e0e0!important;border-radius:10px!important;border:1px solid rgba(255,255,255,.1);box-shadow:0 4px 24px rgba(0,0,0,.6)!important}
-.leaflet-popup-tip{background:#16162a!important}
-.leaflet-popup-content{margin:10px 14px!important;font-size:13px;line-height:1.5}
-.leaflet-control-zoom a{background:#16162a!important;color:#e0e0e0!important;border-color:#333!important}
-.leaflet-control-zoom a:hover{background:#1e1e3a!important}
+/* Leaflet overrides */
+.leaflet-control-zoom a{background:#1a1a2e!important;color:#e0e0e0!important;border-color:#333!important}
+.leaflet-control-zoom a:hover{background:#242440!important}
+.leaflet-popup-content-wrapper{
+  background:#1a1a2e!important;color:#e0e0e0!important;
+  border-radius:10px!important;box-shadow:0 8px 32px rgba(0,0,0,.6)!important;
+  border:1px solid rgba(255,255,255,.08)
+}
+.leaflet-popup-tip{background:#1a1a2e!important}
+.leaflet-popup-content{margin:10px 14px!important;font-size:13px;line-height:1.6}
+.leaflet-popup-content strong{color:#818cf8}
+.leaflet-popup-content .date{color:#f59e0b;font-weight:600}
+.leaflet-popup-content .desc{color:#9090a8;font-size:12px;margin-top:3px}
+
+.pin{
+  width:26px;height:26px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:#fff;flex-shrink:0;
+  box-shadow:0 2px 6px rgba(0,0,0,.4);
+  line-height:1
+}
+.pin-green{background:#10b981}
+.pin-red{background:#ef4444}
+.pin-purple{background:#6366f1}
+.pin-amber{background:#f59e0b}
+.pin-cyan{background:#06b6d4}
+.pin-pink{background:#ec4899}
 </style>
 </head>
 <body>
-<div class="layout">
+
 <div id="sidebar">
-  <h1>美国西部行程 2026</h1>
-  <div class="sub">8/12 西安出发 · 康杰+白雪(12-22) · 白文+Sybils(12-29)</div>
-
-  <div class="day-group">
-    <div class="day-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      <div class="pindot-wrap"><div class="pindot" style="color:#6366f1"></div><div class="pindot-inner"></div></div>
-      <span class="date-label">8/12</span>
-      <span class="day-title">抵LA→Anaheim</span>
-      <span class="arrow">▸</span>
-    </div>
-    <div class="day-body open">
-      <div class="day-item"><span class="loc">洛杉矶 LAX</span> 抵达</div>
-      <div class="day-item"><span class="loc">San Bernardino</span> 午餐<span class="tag">途经</span></div>
-      <div class="day-item"><span class="loc">Montclair Hospital</span> Medical Center<span class="tag">顺路</span></div>
-      <div class="day-item"><span class="loc">Anaheim</span> 入住5晚</div>
-    </div>
+  <div id="sidebar-header">
+    <h1>美国西部行程</h1>
+    <div class="sub">2026年8月12日 → 8月22日</div>
+    <div class="meta">康杰+白雪 (8/12-22) · 白文+Sybils (8/12-29)</div>
   </div>
-
-  <div class="day-group">
-    <div class="day-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      <div class="pindot-wrap"><div class="pindot" style="color:#f59e0b"></div><div class="pindot-inner"></div></div>
-      <span class="date-label">8/13</span>
-      <span class="day-title">迪士尼乐园</span>
-      <span class="arrow">▸</span>
-    </div>
-    <div class="day-body">
-      <div class="day-item"><span class="loc">迪士尼乐园</span> + California Adventure 全天</div>
-    </div>
-  </div>
-
-  <div class="day-group">
-    <div class="day-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      <div class="pindot-wrap"><div class="pindot" style="color:#f59e0b"></div><div class="pindot-inner"></div></div>
-      <span class="date-label">8/14</span>
-      <span class="day-title">环球影城+Caltech</span>
-      <span class="arrow">▸</span>
-    </div>
-    <div class="day-body">
-      <div class="day-item"><span class="loc">环球影城</span> Hollywood 白天</div>
-      <div class="day-item"><span class="loc">Caltech</span> 傍晚校园</div>
-    </div>
-  </div>
-
-  <div class="day-group">
-    <div class="day-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      <div class="pindot-wrap"><div class="pindot" style="color:#f59e0b"></div><div class="pindot-inner"></div></div>
-      <span class="date-label">8/15</span>
-      <span class="day-title">Pier→Getty→Griffith</span>
-      <span class="arrow">▸</span>
-    </div>
-    <div class="day-body">
-      <div class="day-item"><span class="loc">Santa Monica Pier</span> 上午海滩</div>
-      <div class="day-item"><span class="loc">Getty Center</span> 博物馆+花园</div>
-      <div class="day-item"><span class="loc">Griffith Observatory</span> 日落夜景</div>
-    </div>
-  </div>
-
-  <div class="day-group">
-    <div class="day-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      <div class="pindot-wrap"><div class="pindot" style="color:#f59e0b"></div><div class="pindot-inner"></div></div>
-      <span class="date-label">8/16</span>
-      <span class="day-title">San Diego Zoo</span>
-      <span class="arrow">▸</span>
-    </div>
-    <div class="day-body">
-      <div class="day-item"><span class="loc">San Diego Zoo</span> 全天（开车1.5h）</div>
-    </div>
-  </div>
-
-  <div class="day-group">
-    <div class="day-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      <div class="pindot-wrap"><div class="pindot" style="color:#06b6d4"></div><div class="pindot-inner"></div></div>
-      <span class="date-label">8/17</span>
-      <span class="day-title">飞黄石·下8字</span>
-      <span class="arrow">▸</span>
-    </div>
-    <div class="day-body">
-      <div class="day-item">LAX <span class="tag">✈</span> <span class="loc">Bozeman</span></div>
-      <div class="day-item"><span class="loc">黄石下8字</span> 老忠实/大棱镜/西拇指</div>
-    </div>
-  </div>
-
-  <div class="day-group">
-    <div class="day-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      <div class="pindot-wrap"><div class="pindot" style="color:#f59e0b"></div><div class="pindot-inner"></div></div>
-      <span class="date-label">8/18</span>
-      <span class="day-title">黄石上8字</span>
-      <span class="arrow">▸</span>
-    </div>
-    <div class="day-body">
-      <div class="day-item"><span class="loc">黄石上8字</span> 猛犸热泉/峡谷/高塔瀑布</div>
-    </div>
-  </div>
-
-  <div class="day-group">
-    <div class="day-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      <div class="pindot-wrap"><div class="pindot" style="color:#06b6d4"></div><div class="pindot-inner"></div></div>
-      <span class="date-label">8/19</span>
-      <span class="day-title">飞St Paul</span>
-      <span class="arrow">▸</span>
-    </div>
-    <div class="day-body">
-      <div class="day-item"><span class="tag">✈</span> 飞 <span class="loc">St Paul, MN</span></div>
-    </div>
-  </div>
-
-  <div class="day-group">
-    <div class="day-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-      <div class="pindot-wrap"><div class="pindot" style="color:#ef4444"></div><div class="pindot-inner"></div></div>
-      <span class="date-label">8/20-22</span>
-      <span class="day-title">St Paul休整</span>
-      <span class="arrow">▸</span>
-    </div>
-    <div class="day-body">
-      <div class="day-item"><span class="loc">St Paul</span> 休整游览</div>
-      <div class="day-item">康杰+白雪 <span class="tag">8/22回国</span></div>
-      <div class="day-item gray">白文+Sybils 8/29回国</div>
-    </div>
-  </div>
+  <div id="sidebar-content"></div>
 </div>
 <div id="map"></div>
-</div>
 
 <script>
+const DAY_COLORS = {
+  start: '#10b981', end: '#ef4444', stay: '#6366f1',
+  day: '#f59e0b', flight: '#06b6d4', hospital: '#ec4899'
+};
+const PIN_CLASS = {
+  start: 'pin-green', end: 'pin-red', stay: 'pin-purple',
+  day: 'pin-amber', flight: 'pin-cyan', hospital: 'pin-pink'
+};
+const PIN_LABEL = {
+  start: '▶', end: '■', stay: '●',
+  day: '·', flight: '✈', hospital: '+'
+};
+
+const days = [
+  {
+    label: '8/12 周三 · 到达日',
+    route: 'LAX → San Bernardino(午餐) → Montclair Hospital → Anaheim',
+    color: '#10b981',
+    icon: 'start',
+    stops: [
+      {name:'洛杉矶 LAX', lat:33.9416, lng:-118.4085, t:'抵达', desc:'抵达洛杉矶国际机场，取行李', icon:'start'},
+      {name:'San Bernardino 午餐', lat:34.1083, lng:-117.2898, t:'途经午餐', desc:'驱车途中经停休息/午餐约1h', icon:'day'},
+      {name:'Montclair Hospital Medical Center', lat:34.0815, lng:-117.6885, t:'途经', desc:'5000 San Bernardino St, Montclair, CA', icon:'hospital'},
+      {name:'Anaheim 入住', lat:33.8366, lng:-117.9143, t:'住宿 5晚', desc:'入住酒店/Airbnb。迪士尼（8/13）环球（8/14）SD（8/16）的基地', icon:'stay'}
+    ]
+  },
+  {
+    label: '8/13 周四 · 迪士尼',
+    route: '迪士尼乐园 + California Adventure',
+    color: '#f59e0b',
+    icon: 'day',
+    stops: [
+      {name:'迪士尼乐园', lat:33.8121, lng:-117.9190, t:'全天', desc:'迪士尼乐园 + California Adventure。Sybils 9岁', icon:'day'},
+    ]
+  },
+  {
+    label: '8/14 周五 · 环球+Caltech',
+    route: '环球影城 → Caltech(傍晚) → 回Anaheim',
+    color: '#f59e0b',
+    icon: 'day',
+    stops: [
+      {name:'环球影城 Hollywood', lat:34.1381, lng:-118.3534, t:'上午~傍晚', desc:'环球影城 Studio Tour，适合全家', icon:'day'},
+      {name:'Caltech 加州理工', lat:34.1377, lng:-118.1253, t:'傍晚', desc:'校园参观，AI方向', icon:'day'},
+      {name:'Anaheim', lat:33.8366, lng:-117.9143, t:'住宿', desc:'', icon:'stay'}
+    ]
+  },
+  {
+    label: '8/15 周六 · 纯玩日',
+    route: 'Santa Monica → Getty Center → Griffith Observatory',
+    color: '#f59e0b',
+    icon: 'day',
+    stops: [
+      {name:'Santa Monica Pier', lat:34.0095, lng:-118.4971, t:'上午', desc:'海滩/码头', icon:'day'},
+      {name:'Getty Center', lat:34.0771, lng:-118.4748, t:'中午~下午', desc:'免费博物馆+花园，俯瞰LA全景', icon:'day'},
+      {name:'Griffith Observatory', lat:34.1184, lng:-118.3004, t:'傍晚', desc:'天文台日落+夜景，Hollywood标志合影', icon:'day'},
+      {name:'Anaheim', lat:33.8366, lng:-117.9143, t:'住宿', desc:'', icon:'stay'}
+    ]
+  },
+  {
+    label: '8/16 周日 · San Diego',
+    route: 'Anaheim → San Diego Zoo → 回Anaheim',
+    color: '#f59e0b',
+    icon: 'day',
+    stops: [
+      {name:'San Diego Zoo', lat:32.7360, lng:-117.1510, t:'全天', desc:'世界著名动物园，开车约1.5h', icon:'day'},
+      {name:'Anaheim', lat:33.8366, lng:-117.9143, t:'住宿', desc:'', icon:'stay'}
+    ]
+  },
+  {
+    label: '8/17 周一 · 飞黄石',
+    route: 'Anaheim → LAX → 飞 Bozeman → 黄石',
+    color: '#06b6d4',
+    icon: 'flight',
+    stops: [
+      {name:'✈ LAX→Bozeman', lat:33.9416, lng:-118.4085, t:'上午出发', desc:'从Anaheim回LAX，飞往Bozeman', icon:'flight'},
+      {name:'黄石国家公园', lat:44.6200, lng:-110.4900, t:'到达 3天2晚', desc:'入住后游下8字：老忠实/大棱镜/西拇指', icon:'stay'}
+    ]
+  },
+  {
+    label: '8/18 周二 · 黄石上8字',
+    route: '猛犸热泉 → 黄石峡谷 → 高塔瀑布',
+    color: '#f59e0b',
+    icon: 'day',
+    stops: [
+      {name:'Old Faithful', lat:44.4605, lng:-110.8288, t:'', desc:'老忠实间歇泉', icon:'day'},
+      {name:'Grand Prismatic Spring', lat:44.5250, lng:-110.8378, t:'', desc:'大棱镜彩泉', icon:'day'},
+      {name:'Mammoth Hot Springs', lat:44.9666, lng:-110.7119, t:'', desc:'猛犸热泉梯田', icon:'day'},
+      {name:'Grand Canyon of Yellowstone', lat:44.7183, lng:-110.4831, t:'', desc:'黄石大峡谷+Lower Falls', icon:'day'}
+    ]
+  },
+  {
+    label: '8/19 周三 · 飞St Paul',
+    route: '黄石 → 飞 St Paul, MN → 朋友家',
+    color: '#06b6d4',
+    icon: 'flight',
+    stops: [
+      {name:'✈ 黄石→St Paul', lat:44.7400, lng:-110.4100, t:'下午', desc:'从Bozeman飞往明尼苏达', icon:'flight'},
+      {name:'St Paul, MN', lat:44.9537, lng:-93.0899, t:'住宿 4晚', desc:'住朋友家。休整游览。8/22康杰白雪回国', icon:'end'}
+    ]
+  },
+  {
+    label: '8/20-22 周四~六 · St Paul',
+    route: '休整游览 · 8/22康杰白雪回国',
+    color: '#ef4444',
+    icon: 'end',
+    stops: [
+      {name:'St Paul 休整', lat:44.9537, lng:-93.0899, t:'', desc:'明尼苏达休整+游览。8/22康杰+白雪飞回', icon:'end'}
+    ]
+  }
+];
+
+// Build sidebar
+const sidebarEl = document.getElementById('sidebar-content');
+days.forEach((day, di) => {
+  const group = document.createElement('div');
+  group.className = 'day-group';
+
+  const header = document.createElement('div');
+  header.className = 'day-header';
+  header.innerHTML = `
+    <div class="day-num" style="background:${day.color}">${di+1}</div>
+    <div class="day-info">
+      <div class="day-label">${day.label}</div>
+      <div class="day-route">${day.route}</div>
+    </div>
+    <div class="day-toggle open">▼</div>
+  `;
+
+  const stopsDiv = document.createElement('div');
+  stopsDiv.className = 'day-stops open';
+
+  day.stops.forEach(s => {
+    const item = document.createElement('div');
+    item.className = 'stop-item';
+    item.dataset.lat = s.lat;
+    item.dataset.lng = s.lng;
+    item.style.cursor = 'pointer';
+    item.innerHTML = `
+      <div class="stop-dot" style="background:${DAY_COLORS[s.icon] || '#f59e0b'}"></div>
+      <div class="stop-text">
+        <div class="stop-name">${s.name}</div>
+        ${s.t ? `<div class="stop-time">${s.t}</div>` : ''}
+      </div>
+    `;
+    item.addEventListener('click', () => {
+      map.setView([s.lat, s.lng], 10, {animate: true});
+      // Find marker and open popup
+      markers.forEach(m => {
+        const ll = m.getLatLng();
+        if (Math.abs(ll.lat - s.lat) < 0.01 && Math.abs(ll.lng - s.lng) < 0.01) {
+          m.openPopup();
+        }
+      });
+    });
+    stopsDiv.appendChild(item);
+  });
+
+  header.addEventListener('click', () => {
+    stopsDiv.classList.toggle('open');
+    header.querySelector('.day-toggle').classList.toggle('open');
+  });
+
+  group.appendChild(header);
+  group.appendChild(stopsDiv);
+  sidebarEl.appendChild(group);
+});
+
+// Map
 const map = L.map('map', {
-  center: [37.0, -114],
-  zoom: 6,
+  center: [38.5, -105],
+  zoom: 5,
   zoomControl: true,
   attributionControl: false
 });
@@ -181,83 +289,122 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   subdomains: 'abcd'
 }).addTo(map);
 
-// ---- Teardrop Pin Icons ----
-function pinSvg(color, innerSvg) {
-  return L.divIcon({
-    html: `<svg width="26" height="36" viewBox="0 0 26 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M13 35C13 35 2 22 2 11a11 11 0 0 1 22 0c0 11-11 24-11 24z" fill="${color}" stroke="#fff" stroke-width="1.5"/>
-      <circle cx="13" cy="11" r="7" fill="${color}" stroke="#fff" stroke-width="1.2"/>
-      ${innerSvg}
-    </svg>`,
-    iconSize: [26, 36],
-    iconAnchor: [13, 36],
-    popupAnchor: [0, -36]
-  });
-}
+// Collect marker refs
+const markers = [];
 
-const iconCity = (c) => pinSvg(c, '<circle cx="13" cy="11" r="3.5" fill="#fff"/>');
-const iconStay = (c) => pinSvg(c, '<path d="M11 9l2-2 2 2v3h-1v-2h-2v2h-1V9zM10.5 12h5v1.5h-5V12z" fill="#fff"/>');
-const iconStar = (c) => pinSvg(c, '<path d="M13 7.5l1 2 2.2.3-1.6 1.6.4 2.2-2-1-2 1 .4-2.2L9.8 9.8 12 9.5l1-2z" fill="#fff"/>');
-const iconPin = (c) => pinSvg(c, '<circle cx="13" cy="11" r="3.5" fill="#fff"/>');
-const iconEnd = (c) => pinSvg(c, '<rect x="11" y="9" width="4" height="4" rx=".8" fill="#fff"/>');
-const iconHsp = (c) => pinSvg(c, '<path d="M13 8v6M10 11h6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>');
-const iconFly = (c) => pinSvg(c, '<path d="M10 13l3-4 3 4M13 9v5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>');
-const iconPark = (c) => pinSvg(c, '<path d="M10 13l1.5-4h3L16 13h-1.5l-.3-1h-2.4l-.3 1H10z" fill="#fff"/>');
+// All stops as flat array for bounds
+const allPts = [];
 
-// Stops data
-const stops = [
-  {n:'洛杉矶 LAX', p:[33.9416,-118.4085], d:'8/12 抵达', t:'机场', i:iconFly('#10b981')},
-  {n:'San Bernardino', p:[34.1083,-117.2898], d:'8/12 午餐休息', t:'途经', i:iconPin('#f59e0b')},
-  {n:'Montclair Hospital', p:[34.0779,-117.6897], d:'Montclair Medical Center', t:'医院', i:iconHsp('#f43f5e')},
-  {n:'Anaheim', p:[33.8366,-117.9143], d:'住宿基地 5晚', t:'住宿', i:iconStay('#6366f1')},
-  {n:'迪士尼乐园', p:[33.8121,-117.9190], d:'Disneyland + CA Adventure', t:'乐园', i:iconStar('#f59e0b')},
-  {n:'环球影城', p:[34.1381,-118.3534], d:'Universal Studios Hollywood', t:'乐园', i:iconStar('#f59e0b')},
-  {n:'Caltech', p:[34.1377,-118.1253], d:'加州理工学院', t:'校园', i:iconPin('#f59e0b')},
-  {n:'Santa Monica Pier', p:[34.0094,-118.4973], d:'海滩栈桥', t:'景点', i:iconPin('#f59e0b')},
-  {n:'Getty Center', p:[34.0771,-118.4748], d:'博物馆+花园', t:'景点', i:iconPin('#f59e0b')},
-  {n:'Griffith Observatory', p:[34.1184,-118.3004], d:'天文台日落', t:'景点', i:iconPin('#f59e0b')},
-  {n:'San Diego Zoo', p:[32.7360,-117.1510], d:'世界著名动物园', t:'动物园', i:iconPark('#f59e0b')},
-  {n:'Bozeman', p:[45.6770,-111.0429], d:'黄石最近机场', t:'转机', i:iconFly('#06b6d4')},
-  {n:'黄石国家公园', p:[44.6200,-110.4900], d:'3天2晚', t:'住宿', i:iconStay('#6366f1')},
-  {n:'Old Faithful', p:[44.4605,-110.8288], d:'老忠实泉', t:'景点', i:iconPin('#f59e0b')},
-  {n:'Grand Prismatic', p:[44.5250,-110.8378], d:'大棱镜彩泉', t:'景点', i:iconPin('#f59e0b')},
-  {n:'St Paul MN', p:[44.9537,-93.0899], d:'终点 休整4天', t:'终点', i:iconEnd('#ef4444')}
-];
-
-// Routes
-const routes = [
-  {pts:[[33.9416,-118.4085],[34.1083,-117.2898],[34.0779,-117.6897],[33.8366,-117.9143]], c:'#6366f1', d:'8,6', l:'8/12'},
-  {pts:[[33.8366,-117.9143],[33.8121,-117.9190]], c:'#f59e0b', d:'5,5', l:'8/13'},
-  {pts:[[33.8366,-117.9143],[34.1381,-118.3534],[34.1377,-118.1253],[33.8366,-117.9143]], c:'#f59e0b', d:'5,5', l:'8/14'},
-  {pts:[[33.8366,-117.9143],[34.0094,-118.4973],[34.0771,-118.4748],[34.1184,-118.3004],[33.8366,-117.9143]], c:'#f59e0b', d:'5,5', l:'8/15'},
-  {pts:[[33.8366,-117.9143],[32.7360,-117.1510],[33.8366,-117.9143]], c:'#f59e0b', d:'5,5', l:'8/16'},
-  {pts:[[33.8366,-117.9143],[33.9416,-118.4085],[45.6770,-111.0429],[44.6200,-110.4900]], c:'#06b6d4', d:'4,6', l:'8/17 \u2708'},
-  {pts:[[44.6200,-110.4900],[44.9537,-93.0899]], c:'#06b6d4', d:'4,6', l:'8/19 \u2708'}
-];
-
-routes.forEach(r => {
-  L.polyline(r.pts, {
-    color: r.c, weight: r.c==='#6366f1'?2.5:2, opacity:0.7,
-    dashArray: r.d
-  }).addTo(map);
-  if(r.l){
-    const mid = r.pts[Math.floor(r.pts.length/2)];
-    L.marker(mid, {
-      icon: L.divIcon({
-        html:`<div style="background:rgba(15,15,30,.9);border:1px solid ${r.c};color:${r.c};padding:1px 7px;border-radius:4px;font-size:10px;font-weight:600;white-space:nowrap">${r.l}</div>`,
-        iconSize:[0,0], className:''
-      })
+days.forEach((day, di) => {
+  // Day route lines
+  const pts = day.stops.filter(s => s.icon !== 'flight').map(s => [s.lat, s.lng]);
+  if (pts.length > 1) {
+    L.polyline(pts, {
+      color: day.color,
+      weight: 2,
+      opacity: 0.35,
+      dashArray: '8,8'
     }).addTo(map);
   }
+
+  // Flight line for flight days
+  const flightStops = day.stops.filter(s => s.icon === 'flight');
+  if (flightStops.length > 0 && day.stops.length > 1) {
+    const fromIdx = 0;
+    const flightIdx = day.stops.findIndex(s => s.icon === 'flight');
+    if (flightIdx > 0) {
+      const from = day.stops[flightIdx - 1];
+      const to = day.stops[flightIdx];
+      L.polyline([[from.lat, from.lng], [to.lat, to.lng]], {
+        color: '#06b6d4',
+        weight: 1.5,
+        opacity: 0.5,
+        dashArray: '6,6'
+      }).addTo(map);
+    }
+    // After flight
+    if (flightIdx < day.stops.length - 1) {
+      const from = day.stops[flightIdx];
+      const to = day.stops[flightIdx + 1];
+      L.polyline([[from.lat, from.lng], [to.lat, to.lng]], {
+        color: day.color === '#ef4444' ? day.color : '#6366f1',
+        weight: 2,
+        opacity: 0.35,
+        dashArray: '8,8'
+      }).addTo(map);
+    }
+  }
+
+  // Markers
+  day.stops.forEach(s => {
+    // Skip duplicates (Anaheim appears multiple times)
+    const isDuplicate = allPts.some(p => Math.abs(p[0] - s.lat) < 0.01 && Math.abs(p[1] - s.lng) < 0.01);
+    if (isDuplicate && s.icon === 'stay') return;
+
+    allPts.push([s.lat, s.lng]);
+    const pinClass = PIN_CLASS[s.icon] || 'pin-amber';
+    const label = PIN_LABEL[s.icon] || '·';
+
+    const icon = L.divIcon({
+      className: '',
+      html: `<div class="pin ${pinClass}">${label}</div>`,
+      iconSize: [26, 26],
+      iconAnchor: [13, 13],
+      popupAnchor: [0, -16]
+    });
+
+    const marker = L.marker([s.lat, s.lng], {icon}).addTo(map);
+    marker.bindPopup(`
+      ${day.label.split('·')[0] ? `<div class="date">${day.label.split('·')[0].trim()}</div>` : ''}
+      ${s.t ? `<div class="date">${s.t}</div>` : ''}
+      <strong>${s.name}</strong>
+      ${s.desc ? `<div class="desc">${s.desc.replace(/\n/g, '<br>')}</div>` : ''}
+    `);
+    markers.push(marker);
+  });
 });
 
-stops.forEach(s => {
-  const m = L.marker(s.p, {icon:s.i}).addTo(map);
-  m.bindPopup(`<strong>${s.n}</strong><br><span style="color:${s.t==='医院'?'#f43f5e':'#f59e0b'};font-size:11px">${s.d}</span>`);
+// Global route lines between days
+const dayRoutes = [
+  // LA to Yellowstone flight
+  {from: [33.8366,-117.9143], to: [33.9416,-118.4085], color: '#06b6d4'},
+  {from: [33.9416,-118.4085], to: [44.6200,-110.4900], color: '#06b6d4'},
+  // Yellowstone to St Paul flight
+  {from: [44.6200,-110.4900], to: [44.9537,-93.0899], color: '#06b6d4'}
+];
+dayRoutes.forEach(r => {
+  L.polyline([r.from, r.to], {
+    color: r.color,
+    weight: 1.5,
+    opacity: 0.3,
+    dashArray: '4,6'
+  }).addTo(map);
 });
 
-const usBounds = L.latLngBounds(stops.map(s => s.p));
-map.fitBounds(usBounds.pad(0.12));
+// Legend
+const legend = L.control({position: 'bottomleft'});
+legend.onAdd = () => {
+  const div = L.DomUtil.create('div');
+  div.style.cssText = 'background:rgba(13,13,26,.9);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px 14px;font-size:11px;line-height:1.7';
+  div.innerHTML = `
+    <div style="color:#e0e0e0;font-weight:600;margin-bottom:4px;font-size:12px">图例</div>
+    <div><span class="pin ${PIN_CLASS.start}" style="display:inline-flex;width:12px;height:12px;border-radius:3px;font-size:7px;margin-right:6px;vertical-align:middle">${PIN_LABEL.start}</span>起点/到达</div>
+    <div><span class="pin ${PIN_CLASS.end}" style="display:inline-flex;width:12px;height:12px;border-radius:3px;font-size:7px;margin-right:6px;vertical-align:middle">${PIN_LABEL.end}</span>终点</div>
+    <div><span class="pin ${PIN_CLASS.stay}" style="display:inline-flex;width:12px;height:12px;border-radius:3px;font-size:7px;margin-right:6px;vertical-align:middle">${PIN_LABEL.stay}</span>住宿</div>
+    <div><span class="pin ${PIN_CLASS.day}" style="display:inline-flex;width:12px;height:12px;border-radius:3px;font-size:7px;margin-right:6px;vertical-align:middle">${PIN_LABEL.day}</span>景点/活动</div>
+    <div><span class="pin ${PIN_CLASS.flight}" style="display:inline-flex;width:12px;height:12px;border-radius:3px;font-size:7px;margin-right:6px;vertical-align:middle">${PIN_LABEL.flight}</span>航班</div>
+    <div><span class="pin ${PIN_CLASS.hospital}" style="display:inline-flex;width:12px;height:12px;border-radius:3px;font-size:7px;margin-right:6px;vertical-align:middle">${PIN_LABEL.hospital}</span>医院</div>
+    <hr style="border-color:rgba(255,255,255,.08);margin:4px 0">
+    <div style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:16px;height:2px;background:#f59e0b;opacity:.5"></span>驾车路线</div>
+    <div style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:16px;height:0;border-top:1.5px dashed #06b6d4;opacity:.5"></span>飞行路线</div>
+  `;
+  return div;
+};
+legend.addTo(map);
+
+// Fit bounds
+const allBounds = allPts.map(p => L.marker(p));
+map.fitBounds(L.featureGroup(allBounds).getBounds().pad(0.06));
 </script>
 </body>
 </html>
